@@ -23,7 +23,7 @@
 #    define RGBLIGHT_VAL_STEP 8
 #    define RGBLIGHT_LIMIT_VAL 150
 #endif
-#define PERMISSIVE_HOLD
+#define HOLD_ON_OTHER_KEY_PRESS
 #define COMBO_COUNT 1
 // Lets you roll mod-tap keys
 #define IGNORE_MOD_TAP_INTERRUPT
