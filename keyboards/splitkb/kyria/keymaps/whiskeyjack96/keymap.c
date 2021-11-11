@@ -19,14 +19,12 @@
 char wpm_str[10];
 enum layers {
     _QWERTY = 0,
-    _MACQWERTY,
     _NAV,
     _SYM,
 };
 
 // Aliases for readability
 #define QWERTY DF(_QWERTY)
-#define MACQWERTY DF(_MACQWERTY)
 
 #define SYM MO(_SYM)
 #define NAV MO(_NAV)
@@ -55,10 +53,11 @@ combo_t key_combos[COMBO_COUNT] = {
 // produces the key `tap` when tapped (i.e. pressed and released).
 
 const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPACE, KC_DELETE);
+const key_override_t grv_key_override    = ko_make_basic(MOD_MASK_SHIFT, KC_TILD, KC_GRV);
 
 // This globally defines all key overrides to be used
 const key_override_t **key_overrides = (const key_override_t *[]){
-    &delete_key_override,
+    &delete_key_override, &grv_key_override,
     NULL  // Null terminate the array of overrides!
 };
 
@@ -72,40 +71,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
  * |Ctrl/Esc|   A  |   S  |   D  |   F  |   G  |                              |   H  |   J  |   K  |   L  | ;  : |Ctrl/' "|
  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * | LShift |   Z  |   X  |   C  |   V  |   B  | [ {  |CapsLk|  |F-keys|  ] } |   N  |   M  | ,  < | . >  | /  ? | RShift |
+ * | LShift |   Z  |   X  |   C  |   V  |   B  |      |      |  |      |      |   N  |   M  | ,  < | . >  | /  ? | RShift |
  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      | [ {  | LAlt/| Space| Nav  |  | Sym  | Space| AltGr|  ] } | KC_EQL |
+ *                        |      | [ {  | LAlt/| Space| Nav  |  | Sym  | Space|      |  ] } |      |
  *                        |      |      | Enter|      |      |  |      |      |      |      |      |
  *                        `----------------------------------'  `----------------------------------'
  */
     [_QWERTY] = LAYOUT(
-     MACQWERTY  , KC_Q ,  KC_W   ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y,   KC_U ,  KC_I ,   KC_O ,  KC_P , KC_MPLY,
-     KC_LSFT , KC_A ,  KC_S   ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H,   KC_J ,  KC_K ,   KC_L ,KC_SCLN,CTL_QUOT,
-     CTL_ESC  , KC_Z ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_NO, KC_NO,     KC_NO  , KC_NO, KC_N,   KC_M ,KC_COMM, KC_DOT ,KC_SLSH, SFT_EQL,
-                                _______ ,  KC_LBRC , KC_LALT , NAV_SPC, CTL_ENT  ,  SYM_TAB, SFT_SPC, KC_BSPC, KC_RCBR, _______
+    MAGIC_TOGGLE_CTL_GUI, KC_Q, KC_W, KC_E, KC_R, KC_T,                      KC_Y,   KC_U,     KC_I,    KC_O,   KC_P,    KC_MPLY,
+    KC_LSFT, KC_A,  KC_S, KC_D, KC_F, KC_G,                                  KC_H,   KC_J,     KC_K,    KC_L,   KC_SCLN, CTL_QUOT,
+    CTL_ESC, KC_Z,  KC_X, KC_C, KC_V, KC_B, KC_NO, KC_NO, KC_NO,   KC_NO,    KC_N,   KC_M,     KC_COMM, KC_DOT, KC_SLSH, SFT_EQL,
+                               _______, KC_LBRC, KC_LALT, NAV_SPC, CTL_ENT,  SYM_TAB, SFT_SPC, KC_BSPC, KC_RBRC, _______
     ),
 
-
-/*
- * Base Layer: MACQWERTY
- *
- * ,-------------------------------------------.                              ,-------------------------------------------.
- * |  Tab   |   Q  |   W  |   E  |   R  |   T  |                              |   Y  |   U  |   I  |   O  |   P  |  Bksp  |
- * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |Ctrl/Esc|   A  |   S  |   D  |   F  |   G  |                              |   H  |   J  |   K  |   L  | ;  : |Ctrl/' "|
- * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * | LShift |   Z  |   X  |   C  |   V  |   B  | [ {  |CapsLk|  |F-keys|  ] } |   N  |   M  | ,  < | . >  | /  ? | RShift |
- * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      | LGUI | LAlt/| Space| Nav  |  | Sym  | Space| AltGr| RGUI | Menu |
- *                        |      |      | Enter|      |      |  |      |      |      |      |      |
- *                        `----------------------------------'  `----------------------------------'
- */
-    [_MACQWERTY] = LAYOUT(
-     QWERTY  , KC_Q ,  KC_W   ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y,   KC_U ,  KC_I ,   KC_O ,  KC_P , KC_MPLY,
-     KC_LSFT , KC_A ,  KC_S   ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H,   KC_J ,  KC_K ,   KC_L ,KC_SCLN,GUI_QUOT,
-     GUI_ESC , KC_Z ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_NO, KC_NO, KC_NO  , KC_NO, KC_N, KC_M , KC_COMM, KC_DOT ,KC_SLSH, SFT_EQL,
-                                _______ ,  KC_LBRC, KC_LALT, NAV_SPC, GUI_ENT,  SYM_TAB, SFT_SPC, KC_BSPC, KC_RCBR, _______
-    ),
 
 /*
  * Nav Layer: Media, navigation
@@ -122,10 +100,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                        `----------------------------------'  `----------------------------------'
  */
     [_NAV] = LAYOUT(
-      _______, _______, _______, _______, _______, _______,                                     KC_PGUP, KC_HOME, KC_UP,   KC_END,  KC_VOLU, KC_PSCR ,
-      _______, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, _______,                                     KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, KC_VOLD, KC_INS,
-      _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PAUSE, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_DEL ,
-                                 _______, _______, _______, _______, _______, _______, _______, KC_DEL, _______, _______
+    _______, _______, _______, _______, _______, _______,                                     KC_PGUP,  KC_HOME, KC_UP,   KC_END,  KC_VOLU, KC_PSCR,
+    _______, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, _______,                                     KC_PGDN,  KC_LEFT, KC_DOWN, KC_RGHT, KC_VOLD, KC_INS,
+    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PAUSE, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_DEL,
+                               _______, _______, G(KC_LEFT), _______, _______, _______, _______, G(KC_RGHT), _______, _______
     ),
 
 /*
@@ -143,10 +121,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                        `----------------------------------'  `----------------------------------'
  */
     [_SYM] = LAYOUT(
-      KC_GRV ,   KC_1 ,   KC_2 ,   KC_3 ,   KC_4 ,   KC_5 ,                                       KC_6 ,   KC_7 ,   KC_8 ,   KC_9 ,   KC_0 , KC_EQL ,
-     KC_TILD , KC_EXLM,  KC_AT , KC_HASH,  KC_DLR, KC_PERC,                                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PLUS,
-     KC_PIPE , KC_BSLS, KC_LT, KC_GT, KC_MINS, KC_LBRC, _______, _______, _______, _______, KC_RBRC, KC_UNDS, KC_COMM,  KC_DOT, KC_SLSH, KC_QUES,
-                                 _______, KC_LCBR, KC_EQL, _______, _______, _______, _______, KC_EQL, KC_RCBR, _______
+    KC_GRV,  KC_1,    KC_2,  KC_3,    KC_4,    KC_5,                                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_EQL,
+    KC_TILD, KC_EXLM, KC_AT, KC_HASH, KC_DLR,  KC_PERC,                                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PLUS,
+    KC_PIPE, KC_BSLS, KC_LT, KC_GT,   KC_MINS, KC_LBRC, _______, _______, _______, _______, KC_RBRC, KC_UNDS, KC_COMM, KC_DOT,  KC_SLSH, KC_QUES,
+                             _______, _______, KC_EQL, _______, _______, _______, _______,  KC_EQL, _______, _______
     ),
 
 // /*
@@ -198,9 +176,6 @@ void oled_task_user(void) {
         switch (get_highest_layer(layer_state | default_layer_state)) {
             case _QWERTY:
                 oled_write_P(PSTR("QWERTY\n"), false);
-                break;
-            case _MACQWERTY:
-                oled_write_P(PSTR("MAC QWERTY\n"), false);
                 break;
             case _NAV:
                 oled_write_P(PSTR("Nav\n"), false);
@@ -292,6 +267,18 @@ void oled_task_user(void) {
 #endif
 
 #ifdef ENCODER_ENABLE
+// bool     is_alt_tab_active = false;
+// uint16_t alt_tab_timer     = 0;
+
+// void matrix_scan_user(void) {
+//     if (is_alt_tab_active) {
+//         if (timer_elapsed(alt_tab_timer) > 500) {
+//             unregister_code(KC_LALT);
+//             is_alt_tab_active = false;
+//         }
+//     }
+// }
+
 bool encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 0) {
         // Scroll up/Scroll down
@@ -307,6 +294,22 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
         } else {
             tap_code(KC_VOLU);
         }
+
+        // if (clockwise) {
+        //     if (!is_alt_tab_active) {
+        //         is_alt_tab_active = true;
+        //         register_code(KC_LALT);
+        //     }
+        //     alt_tab_timer = timer_read();
+        //     tap_code16(KC_TAB);
+        // } else {
+        //     if (!is_alt_tab_active) {
+        //         is_alt_tab_active = true;
+        //         register_code(KC_LALT);
+        //     }
+        //     alt_tab_timer = timer_read();
+        //     tap_code16(S(KC_TAB));
+        // }
     }
     return false;
 }
