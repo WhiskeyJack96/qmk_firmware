@@ -13,15 +13,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include QMK_KEYBOARD_H
 #include <stdio.h>
+#include "test.h"
+#include "quantum.h"
+#include "process_key_override.h"
 
-char wpm_str[10];
+uint16_t copy_paste_timer;
+
 enum layers {
     _QWERTY = 0,
     _NAV,
     _SYM,
 };
+
+enum custom_keycodes { KC_CCCV = SAFE_RANGE, KC_OS_WORK_LEFT, KC_OS_WORK_RIGHT, KC_TRACK_AUTOSHIFT };
 
 // Aliases for readability
 #define QWERTY DF(_QWERTY)
@@ -31,34 +38,23 @@ enum layers {
 
 #define CTL_ESC MT(MOD_LCTL, KC_ESC)
 #define SFT_SPC MT(MOD_LSFT, KC_SPC)
-#define SFT_EQL MT(MOD_RSFT, KC_EQL)
-#define CTL_QUOT MT(MOD_RCTL, KC_QUOTE)
-#define CTL_ENT MT(MOD_RCTL, KC_ENT)
+#define CTL_EQL MT(MOD_RCTL, KC_EQL)
+#define SFT_QUOT MT(MOD_RSFT, KC_QUOTE)
+#define CTL_SPC MT(MOD_LCTL, KC_SPC)
 
 #define GUI_ESC MT(MOD_LGUI, KC_ESC)
 #define GUI_QUOT MT(MOD_RGUI, KC_QUOTE)
 #define GUI_ENT MT(MOD_RGUI, KC_ENT)
 
-#define NAV_SPC LT(NAV, KC_SPC)
+#define NAV_ENT LT(NAV, KC_ENT)
 #define SYM_TAB LT(SYM, KC_TAB)
-
-const uint16_t PROGMEM test_combo1[] = {KC_Z, KC_A, COMBO_END};
-
-combo_t key_combos[COMBO_COUNT] = {
-    COMBO(test_combo1, LCTL(KC_Z)),  // keycodes with modifiers are possible too!
-};
-
-// Note: LAlt/Enter (ALT_ENT) is not the same thing as the keyboard shortcut Alt+Enter.
-// The notation `mod/tap` denotes a key that activates the modifier `mod` when held down, and
-// produces the key `tap` when tapped (i.e. pressed and released).
 
 const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPACE, KC_DELETE);
 const key_override_t grv_key_override    = ko_make_basic(MOD_MASK_SHIFT, KC_TILD, KC_GRV);
-
+const key_override_t curly_key_override  = ko_make_basic(MOD_MASK_CTRL, KC_TILD, KC_GRV);
 // This globally defines all key overrides to be used
 const key_override_t **key_overrides = (const key_override_t *[]){
-    &delete_key_override, &grv_key_override,
-    NULL  // Null terminate the array of overrides!
+    &delete_key_override, &grv_key_override, NULL  // Null terminate the array of overrides!
 };
 
 // clang-format off
@@ -78,12 +74,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                        `----------------------------------'  `----------------------------------'
  */
     [_QWERTY] = LAYOUT(
-    MAGIC_TOGGLE_CTL_GUI, KC_Q, KC_W, KC_E, KC_R, KC_T,                      KC_Y,   KC_U,     KC_I,    KC_O,   KC_P,    KC_MPLY,
-    KC_LSFT, KC_A,  KC_S, KC_D, KC_F, KC_G,                                  KC_H,   KC_J,     KC_K,    KC_L,   KC_SCLN, CTL_QUOT,
-    CTL_ESC, KC_Z,  KC_X, KC_C, KC_V, KC_B, KC_NO, KC_NO, KC_NO,   KC_NO,    KC_N,   KC_M,     KC_COMM, KC_DOT, KC_SLSH, SFT_EQL,
-                               _______, KC_LBRC, KC_LALT, NAV_SPC, CTL_ENT,  SYM_TAB, SFT_SPC, KC_BSPC, KC_RBRC, _______
+    MAGIC_TOGGLE_CTL_GUI, KC_Q, KC_W, KC_E, KC_R, KC_T,                      KC_Y,   KC_U,     KC_I,    KC_O,   KC_P,     KC_ASTG,
+    KC_LSFT, KC_A,  KC_S, KC_D, KC_F, KC_G,                                  KC_H,   KC_J,     KC_K,    KC_L,   KC_SCLN, KC_QUOT,
+    CTL_ESC, KC_Z,  KC_X, KC_C, KC_V, KC_B, KC_NO, KC_NO, KC_NO, KC_NO,    KC_N,   KC_M,     KC_COMM, KC_DOT, KC_SLSH, CTL_EQL,
+                            KC_CCCV, KC_LBRC, KC_LALT, CTL_SPC, NAV_ENT,  SYM_TAB, SFT_SPC, KC_BSPC, KC_RBRC, KC_LEAD
     ),
-
 
 /*
  * Nav Layer: Media, navigation
@@ -100,10 +95,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                        `----------------------------------'  `----------------------------------'
  */
     [_NAV] = LAYOUT(
-    _______, _______, _______, _______, _______, _______,                                     KC_PGUP,  KC_HOME, KC_UP,   KC_END,  KC_VOLU, KC_PSCR,
-    _______, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, _______,                                     KC_PGDN,  KC_LEFT, KC_DOWN, KC_RGHT, KC_VOLD, KC_INS,
-    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PAUSE, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_DEL,
-                               _______, _______, G(KC_LEFT), _______, _______, _______, _______, G(KC_RGHT), _______, _______
+    _______, _______, _______, _______, _______, _______,                                     KC_HOME, C(KC_LEFT), KC_UP, C(KC_RGHT), _______, KC_MPLY,
+    _______, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, _______,                                     KC_END, KC_LEFT, KC_DOWN, KC_RGHT, _______, KC_INS,
+    KC_PAUSE, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE,  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_DEL,
+                               _______, _______, _______, _______, _______, KC_OS_WORK_LEFT, KC_OS_WORK_RIGHT, _______, _______, _______
     ),
 
 /*
@@ -124,7 +119,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_GRV,  KC_1,    KC_2,  KC_3,    KC_4,    KC_5,                                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_EQL,
     KC_TILD, KC_EXLM, KC_AT, KC_HASH, KC_DLR,  KC_PERC,                                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PLUS,
     KC_PIPE, KC_BSLS, KC_LT, KC_GT,   KC_MINS, KC_LBRC, _______, _______, _______, _______, KC_RBRC, KC_UNDS, KC_COMM, KC_DOT,  KC_SLSH, KC_QUES,
-                             _______, _______, KC_EQL, _______, _______, _______, _______,  KC_EQL, _______, _______
+                             _______, _______, _______, KC_LBRC, KC_RBRC, _______, SFT_SPC, _______, _______, _______
     ),
 
 // /*
@@ -154,6 +149,154 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * For your convenience, here's a copy of those settings so that you can uncomment them if you wish to apply your own modifications.
  * DO NOT edit the rev1.c file; instead override the weakly defined default functions by your own.
  */
+typedef union {
+    uint32_t raw;
+    struct {
+        bool osIsWindows;
+        bool asIsOn;
+    };
+} user_config_t;
+
+user_config_t user_config;
+void keyboard_post_init_user(void) {
+    // Call the post init code.
+
+    // Read the user config from EEPROM
+    user_config.raw = eeconfig_read_user();
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case KC_OS_WORK_LEFT:
+            if (record->event.pressed) {
+                tap_code16(leftWorkspaceKey());
+                return false;
+            }
+            break;
+        case KC_OS_WORK_RIGHT:
+            if (record->event.pressed) {
+                tap_code16(rightWorkspaceKey());
+                return false;
+            }
+            break;
+        // case C(KC_T):
+        //     if (record->event.pressed) {
+        //         tap_code16(refactorKey());
+        //     }
+        //     break;
+        case G(KC_RGHT):
+        case C(KC_RGHT):
+            if (record->event.pressed) {
+                tap_code16(nextWord());
+                return false;
+            }
+            break;
+        case G(KC_LEFT):
+        case C(KC_LEFT):
+            if (record->event.pressed) {
+                tap_code16(lastWord());
+                return false;
+            }
+            break;
+        // case G(KC_C):    
+        // case C(KC_C):ctrl_v_key_override
+        //     if (record->event.pressed) {
+        //         tap_code16(copyKey());
+        //     }
+        //     break;
+        // case G(KC_V):
+        // case C(KC_V):
+        //     if (record->event.pressed) {
+        //         tap_code16(pasteKey());
+        //     }
+        //     break;
+        case KC_CCCV:  // One key copy/paste
+            if (record->event.pressed) {
+                copy_paste_timer = timer_read();
+            } else {
+                if (timer_elapsed(copy_paste_timer) > TAPPING_TERM) {  // Hold, copy
+                    tap_code16(copyKey());
+                } else { // Tap, paste
+                    tap_code16(pasteKey());
+                }
+            }
+            break;
+        // case KC_TRACK_AUTOSHIFT:
+        //     if (record->event.pressed) {
+        //         user_config.asIsOn = !user_config.asIsOn;
+        //         eeconfig_update_user(user_config.raw);
+        //         tap_code16();
+        //     }
+    }
+    return true;
+}
+int nextWord(void) {
+    return osKey(C(KC_RGHT),A(KC_RGHT));
+}
+int lastWord(void) {
+    return osKey(C(KC_LEFT),A(KC_LEFT));
+}
+int refactorKey(void) {
+    return osKey(C(KC_T),G(KC_T));
+}
+int pasteKey(void) {
+    return osKey(C(KC_V),G(KC_V));
+}
+int copyKey(void) {
+    return osKey(C(KC_C),G(KC_C));
+}
+int leftWorkspaceKey(void) {
+    return osKey(G(C(KC_LEFT)),G(KC_LEFT));
+}
+int rightWorkspaceKey(void) {
+    return osKey(G(C(KC_RGHT)),G(KC_RGHT));
+}
+
+int osKey(int win,int mac) {
+    if (user_config.osIsWindows == 1) {
+        return win;
+    }
+    return mac;
+}
+
+LEADER_EXTERNS();
+//
+void matrix_scan_user(void) {
+  LEADER_DICTIONARY() {
+    leading = false;
+    leader_end();
+    // Set current OS indicator to macOs
+    SEQ_ONE_KEY(KC_M) {
+        user_config.osIsWindows = false;
+        eeconfig_update_user(user_config.raw);
+    }
+    // Set current OS indicator to Windows
+    SEQ_ONE_KEY(KC_W) {
+        user_config.osIsWindows = true;
+        eeconfig_update_user(user_config.raw);
+    }
+    SEQ_ONE_KEY(KC_E) { // Email personal
+        SEND_STRING("jacob.mikesell96@gmail.com");
+    }
+    SEQ_TWO_KEYS(KC_E,KC_E) { // Email personal
+        SEND_STRING("jmikesell@apexclearing.com");
+    }
+    SEQ_TWO_KEYS(KC_D, KC_F) {  // Code block
+        SEND_STRING("```" SS_LSFT("\n\n") "``` " SS_TAP(X_UP));
+    }
+    SEQ_ONE_KEY(KC_C) {  // Code block
+        tap_code16(C(KC_C));
+    }
+    // Screenshot
+    SEQ_ONE_KEY(KC_S) {
+        if (user_config.osIsWindows == 1) {
+            tap_code16(S(G(KC_S)));
+        } else if (user_config.osIsWindows == 0) {
+            tap_code16(S(G(KC_4)));
+        }
+    }
+  }
+}
 
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) { return OLED_ROTATION_180; }
@@ -169,7 +312,14 @@ void oled_task_user(void) {
         // clang-format on
 
         oled_write_P(qmk_logo, false);
-        oled_write_P(PSTR("Kyria rev1.4\n\n"), false);
+        oled_write_P(PSTR("Kyria rev1.5\n"), false);
+        if (user_config.osIsWindows) {
+            oled_write_P(PSTR("WANDOWS"), false);
+        } else {
+            oled_write_P(PSTR("MACARONI"), false);
+        }
+
+        oled_write_P(PSTR("\n"), false);
 
         // Host Keyboard Layer Status
         oled_write_P(PSTR("Layer: "), false);
@@ -281,11 +431,24 @@ void oled_task_user(void) {
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 0) {
-        // Scroll up/Scroll down
-        if (clockwise) {
-            tap_code(KC_WH_U);
-        } else {
-            tap_code(KC_WH_D);
+        switch (biton32(layer_state)) {
+            case _QWERTY:
+                // History scrubbing. For Adobe products, hold shift while moving
+                // backward to go forward instead.
+                if (clockwise) {
+                    tap_code16(C(KC_Z));
+                } else {
+                    tap_code16(C(KC_Y));
+                }
+                break;
+            default:
+                // Scroll up/Scroll down
+                if (clockwise) {
+                    tap_code(KC_WH_U);
+                } else {
+                    tap_code(KC_WH_D);
+                }
+                break;
         }
     } else if (index == 1) {
         // Volume control

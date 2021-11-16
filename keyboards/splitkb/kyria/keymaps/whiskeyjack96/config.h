@@ -23,10 +23,16 @@
 #    define RGBLIGHT_VAL_STEP 8
 #    define RGBLIGHT_LIMIT_VAL 150
 #endif
-#define HOLD_ON_OTHER_KEY_PRESS
+#define PERMISSIVE_HOLD
 #define COMBO_COUNT 1
 // Lets you roll mod-tap keys
 #define IGNORE_MOD_TAP_INTERRUPT
+#define LEADER_TIMEOUT 300
+#define AUTO_SHIFT_TIMEOUT 150
+#define NO_AUTO_SHIFT_NUMERIC
+
+#define NO_ACTION_MACRO
+#define NO_ACTION_FUNCTION
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
 // #define SPLIT_USB_DETECT
 // #define NO_USB_STARTUP_CHECK
