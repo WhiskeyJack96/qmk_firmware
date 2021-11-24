@@ -18,7 +18,11 @@
         "type_traits": "c",
         "utility": "c",
         "ranges": "c",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "array": "c",
+        "vector": "c",
+        "xstring": "c",
+        "xutility": "c"
     },
     "[markdown]": {
         "editor.trimAutoWhitespace": false,

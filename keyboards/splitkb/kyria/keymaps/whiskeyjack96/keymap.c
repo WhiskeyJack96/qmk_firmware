@@ -17,6 +17,7 @@
 #include QMK_KEYBOARD_H
 #include <stdio.h>
 #include "test.h"
+#include "oneshot.h"
 #include "quantum.h"
 #include "process_key_override.h"
 
@@ -26,15 +27,25 @@ enum layers {
     _QWERTY = 0,
     _NAV,
     _SYM,
+    _MOD,
 };
 
-enum custom_keycodes { KC_CCCV = SAFE_RANGE, KC_OS_WORK_LEFT, KC_OS_WORK_RIGHT, KC_TRACK_AUTOSHIFT };
+enum custom_keycodes {
+    KC_CCCV = SAFE_RANGE,
+    OS_LEFT,
+    OS_RIGHT,
+    OS_SHFT,
+    OS_CTRL,
+    OS_ALT,
+    OS_GUI,
+};
 
 // Aliases for readability
 #define QWERTY DF(_QWERTY)
 
 #define SYM MO(_SYM)
 #define NAV MO(_NAV)
+#define MOD MO(_MOD)
 
 #define CTL_ESC MT(MOD_LCTL, KC_ESC)
 #define SFT_SPC MT(MOD_LSFT, KC_SPC)
@@ -48,112 +59,48 @@ enum custom_keycodes { KC_CCCV = SAFE_RANGE, KC_OS_WORK_LEFT, KC_OS_WORK_RIGHT, 
 
 #define NAV_ENT LT(NAV, KC_ENT)
 #define SYM_TAB LT(SYM, KC_TAB)
-
+#define SWAP_OS MAGIC_TOGGLE_CTL_GUI
 const key_override_t delete_key_override = ko_make_basic(MOD_MASK_SHIFT, KC_BSPACE, KC_DELETE);
-const key_override_t grv_key_override    = ko_make_basic(MOD_MASK_SHIFT, KC_TILD, KC_GRV);
-const key_override_t curly_key_override  = ko_make_basic(MOD_MASK_CTRL, KC_TILD, KC_GRV);
 // This globally defines all key overrides to be used
 const key_override_t **key_overrides = (const key_override_t *[]){
-    &delete_key_override, &grv_key_override, NULL  // Null terminate the array of overrides!
+    &delete_key_override, NULL  // Null terminate the array of overrides!
 };
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-/*
- * Base Layer: QWERTY
- *
- * ,-------------------------------------------.                              ,-------------------------------------------.
- * |  Tab   |   Q  |   W  |   E  |   R  |   T  |                              |   Y  |   U  |   I  |   O  |   P  |  Bksp  |
- * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |Ctrl/Esc|   A  |   S  |   D  |   F  |   G  |                              |   H  |   J  |   K  |   L  | ;  : |Ctrl/' "|
- * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * | LShift |   Z  |   X  |   C  |   V  |   B  |      |      |  |      |      |   N  |   M  | ,  < | . >  | /  ? | RShift |
- * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      | [ {  | LAlt/| Space| Nav  |  | Sym  | Space|      |  ] } |      |
- *                        |      |      | Enter|      |      |  |      |      |      |      |      |
- *                        `----------------------------------'  `----------------------------------'
- */
     [_QWERTY] = LAYOUT(
-    MAGIC_TOGGLE_CTL_GUI, KC_Q, KC_W, KC_E, KC_R, KC_T,                      KC_Y,   KC_U,     KC_I,    KC_O,   KC_P,     KC_ASTG,
-    KC_LSFT, KC_A,  KC_S, KC_D, KC_F, KC_G,                                  KC_H,   KC_J,     KC_K,    KC_L,   KC_SCLN, KC_QUOT,
-    CTL_ESC, KC_Z,  KC_X, KC_C, KC_V, KC_B, KC_NO, KC_NO, KC_NO, KC_NO,    KC_N,   KC_M,     KC_COMM, KC_DOT, KC_SLSH, CTL_EQL,
-                            KC_CCCV, KC_LBRC, KC_LALT, CTL_SPC, NAV_ENT,  SYM_TAB, SFT_SPC, KC_BSPC, KC_RBRC, KC_LEAD
+    CG_TOGG, KC_Q, KC_W, KC_E, KC_R, KC_T,                                           KC_Y, KC_U, KC_I, KC_O, KC_P, KC_MPLY,
+    KC_LSFT, KC_A, KC_S, KC_D, KC_F, KC_G,                                           KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_QUOT,
+    CTL_ESC, KC_Z, KC_X, KC_C, KC_V, KC_B,          KC_NO,  KC_NO, KC_NO, KC_NO,     KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_EQL,
+                            KC_CCCV, KC_NO, KC_ENT, KC_SPC, NAV, SYM, OSM(MOD_LSFT), KC_BSPC, KC_NO, KC_LEAD
     ),
-
-/*
- * Nav Layer: Media, navigation
- *
- * ,-------------------------------------------.                              ,-------------------------------------------.
- * |        |      |      |      |      |      |                              | PgUp | Home |   ↑  | End  | VolUp| Delete |
- * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |        |  GUI |  Alt | Ctrl | Shift|      |                              | PgDn |  ←   |   ↓  |   →  | VolDn| Insert |
- * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |        |      |      |      |      |      |      |      |  |      |      | Pause|M Prev|M Play|M Next|VolMut| PrtSc  |
- * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        `----------------------------------'  `----------------------------------'
- */
     [_NAV] = LAYOUT(
-    _______, _______, _______, _______, _______, _______,                                     KC_HOME, C(KC_LEFT), KC_UP, C(KC_RGHT), _______, KC_MPLY,
-    _______, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, _______,                                     KC_END, KC_LEFT, KC_DOWN, KC_RGHT, _______, KC_INS,
-    KC_PAUSE, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE,  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_DEL,
-                               _______, _______, _______, _______, _______, KC_OS_WORK_LEFT, KC_OS_WORK_RIGHT, _______, _______, _______
+    _______, KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, C(KC_T),                                     KC_HOME, C(KC_LEFT), KC_UP,   C(KC_RGHT), _______, _______,
+    _______, OS_GUI,  OS_ALT,  OS_SHFT, OS_CTRL, KC_TAB,                                      KC_END,  KC_LEFT,    KC_DOWN, KC_RGHT, _______, _______,
+    _______, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), OS_LEFT, _______, _______, _______, _______, OS_RIGHT, _______, _______, _______, _______, _______,
+                               _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
     ),
-
-/*
- * Sym Layer: Numbers and symbols
- *
- * ,-------------------------------------------.                              ,-------------------------------------------.
- * |    `   |  1   |  2   |  3   |  4   |  5   |                              |   6  |  7   |  8   |  9   |  0   |   =    |
- * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
- * |    ~   |  !   |  @   |  #   |  $   |  %   |                              |   ^  |  &   |  *   |  (   |  )   |   +    |
- * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
- * |    |   |   \  |  :   |  ;   |  -   |  [   |  {   |      |  |      |   }  |   ]  |  _   |  ,   |  .   |  /   |   ?    |
- * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        |      |      |      |      |      |  |      |      |      |      |      |
- *                        `----------------------------------'  `----------------------------------'
- */
     [_SYM] = LAYOUT(
-    KC_GRV,  KC_1,    KC_2,  KC_3,    KC_4,    KC_5,                                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_EQL,
-    KC_TILD, KC_EXLM, KC_AT, KC_HASH, KC_DLR,  KC_PERC,                                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PLUS,
-    KC_PIPE, KC_BSLS, KC_LT, KC_GT,   KC_MINS, KC_LBRC, _______, _______, _______, _______, KC_RBRC, KC_UNDS, KC_COMM, KC_DOT,  KC_SLSH, KC_QUES,
-                             _______, _______, _______, KC_LBRC, KC_RBRC, _______, SFT_SPC, _______, _______, _______
+    _______, KC_TILD, KC_PERC, KC_GRV,  KC_UNDS, KC_LPRN,                                     KC_RPRN, KC_AMPR, KC_ASTR, KC_PIPE, KC_CIRC, _______,
+    _______, KC_EXLM, KC_AT,   KC_HASH, KC_MINS, KC_LCBR,                                     KC_RCBR, OS_CTRL, OS_SHFT, OS_ALT,  OS_GUI, _______,
+    _______, _______, _______, _______, _______, KC_LBRC, _______, _______, _______, _______, KC_RBRC, _______, _______, KC_BSLS, KC_SLSH, _______,
+                             _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
     ),
-
-// /*
-//  * Layer template
-//  *
-//  * ,-------------------------------------------.                              ,-------------------------------------------.
-//  * |        |      |      |      |      |      |                              |      |      |      |      |      |        |
-//  * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-//  * |        |      |      |      |      |      |                              |      |      |      |      |      |        |
-//  * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-//  * |        |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      |        |
-//  * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
-//  *                        |      |      |      |      |      |  |      |      |      |      |      |
-//  *                        |      |      |      |      |      |  |      |      |      |      |      |
-//  *                        `----------------------------------'  `----------------------------------'
-//  */
-//     [_LAYERINDEX] = LAYOUT(
-//       _______, _______, _______, _______, _______, _______,                                     _______, _______, _______, _______, _______, _______,
-//       _______, _______, _______, _______, _______, _______,                                     _______, _______, _______, _______, _______, _______,
-//       _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-//                                  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
-//     ),
+    [_MOD] = LAYOUT(
+    _______, KC_1,   KC_2,   KC_3,    KC_4,    KC_5,                                        KC_6,    KC_7,    KC_8,    KC_9,   KC_0,   _______,
+    _______, OS_GUI, OS_ALT, OS_SHFT, OS_CTRL, _______,                                     _______, OS_CTRL, OS_SHFT, OS_ALT, OS_GUI, _______,
+    _______,  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+                               _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
+    ),
 };
+layer_state_t layer_state_set_user(layer_state_t state) {
+    return update_tri_layer_state(state, _SYM, _NAV, _MOD);
+}
 
-/* The default OLED and rotary encoder code can be found at the bottom of qmk_firmware/keyboards/splitkb/kyria/rev1/rev1.c
- * These default settings can be overriden by your own settings in your keymap.c
- * For your convenience, here's a copy of those settings so that you can uncomment them if you wish to apply your own modifications.
- * DO NOT edit the rev1.c file; instead override the weakly defined default functions by your own.
- */
 typedef union {
     uint32_t raw;
     struct {
         bool osIsWindows;
-        bool asIsOn;
     };
 } user_config_t;
 
@@ -165,25 +112,81 @@ void keyboard_post_init_user(void) {
     user_config.raw = eeconfig_read_user();
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+bool is_oneshot_cancel_key(uint16_t keycode) {
     switch (keycode) {
-        case KC_OS_WORK_LEFT:
+    case SYM:
+    case NAV:
+    case MOD:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool is_oneshot_ignored_key(uint16_t keycode) {
+    switch (keycode) {
+    case SYM:
+    case NAV:
+    case MOD:
+    case OS_SHFT:
+    case OS_CTRL:
+    case OS_ALT:
+    case OS_GUI:
+        return true;
+    default:
+        return false;
+    }
+}
+
+oneshot_state os_shft_state = os_up_unqueued;
+oneshot_state os_ctrl_state = os_up_unqueued;
+oneshot_state os_alt_state = os_up_unqueued;
+oneshot_state os_gui_state = os_up_unqueued;
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    update_oneshot(
+        &os_shft_state, KC_LSFT, OS_SHFT,
+        keycode, record
+    );
+    if (!user_config.osIsWindows) {
+        update_oneshot(
+            &os_gui_state, KC_LGUI, OS_CTRL,
+            keycode, record
+        );
+    } else { 
+        update_oneshot(
+            &os_ctrl_state, KC_LCTL, OS_CTRL,
+            keycode, record
+        );
+    }
+    update_oneshot(
+        &os_alt_state, KC_LALT, OS_ALT,
+        keycode, record
+    );
+    if (!user_config.osIsWindows) {
+        update_oneshot(
+            &os_ctrl_state, KC_LCTRL, OS_GUI,
+            keycode, record
+        );
+    } else { 
+        update_oneshot(
+            &os_gui_state, KC_LGUI, OS_GUI,
+            keycode, record
+        );
+    }
+    switch (keycode) {
+        case OS_LEFT:
             if (record->event.pressed) {
                 tap_code16(leftWorkspaceKey());
                 return false;
             }
             break;
-        case KC_OS_WORK_RIGHT:
+        case OS_RIGHT:
             if (record->event.pressed) {
                 tap_code16(rightWorkspaceKey());
                 return false;
             }
             break;
-        // case C(KC_T):
-        //     if (record->event.pressed) {
-        //         tap_code16(refactorKey());
-        //     }
-        //     break;
         case G(KC_RGHT):
         case C(KC_RGHT):
             if (record->event.pressed) {
@@ -198,18 +201,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
-        // case G(KC_C):    
-        // case C(KC_C):ctrl_v_key_override
-        //     if (record->event.pressed) {
-        //         tap_code16(copyKey());
-        //     }
-        //     break;
-        // case G(KC_V):
-        // case C(KC_V):
-        //     if (record->event.pressed) {
-        //         tap_code16(pasteKey());
-        //     }
-        //     break;
+        case C(KC_Z):
+            if (record->event.pressed) {
+                tap_code16(undoKey());
+                return false;
+            }
+            break;
+        case C(KC_X):
+            if (record->event.pressed) {
+                tap_code16(cutKey());
+                return false;
+            }
+            break;
+        case C(KC_C):
+            if (record->event.pressed) {
+                tap_code16(copyKey());
+                return false;
+            }
+            break;
+        case C(KC_V):
+            if (record->event.pressed) {
+                tap_code16(pasteKey());
+                return false;
+            }
+            break;
         case KC_CCCV:  // One key copy/paste
             if (record->event.pressed) {
                 copy_paste_timer = timer_read();
@@ -221,42 +236,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             break;
-        // case KC_TRACK_AUTOSHIFT:
-        //     if (record->event.pressed) {
-        //         user_config.asIsOn = !user_config.asIsOn;
-        //         eeconfig_update_user(user_config.raw);
-        //         tap_code16();
-        //     }
     }
     return true;
-}
-int nextWord(void) {
-    return osKey(C(KC_RGHT),A(KC_RGHT));
-}
-int lastWord(void) {
-    return osKey(C(KC_LEFT),A(KC_LEFT));
-}
-int refactorKey(void) {
-    return osKey(C(KC_T),G(KC_T));
-}
-int pasteKey(void) {
-    return osKey(C(KC_V),G(KC_V));
-}
-int copyKey(void) {
-    return osKey(C(KC_C),G(KC_C));
-}
-int leftWorkspaceKey(void) {
-    return osKey(G(C(KC_LEFT)),G(KC_LEFT));
-}
-int rightWorkspaceKey(void) {
-    return osKey(G(C(KC_RGHT)),G(KC_RGHT));
-}
-
-int osKey(int win,int mac) {
-    if (user_config.osIsWindows == 1) {
-        return win;
-    }
-    return mac;
 }
 
 LEADER_EXTERNS();
@@ -297,6 +278,12 @@ void matrix_scan_user(void) {
     }
   }
 }
+int osKey(int win, int mac) {
+    if (user_config.osIsWindows == 1) {
+        return win;
+    }
+    return mac;
+}
 
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) { return OLED_ROTATION_180; }
@@ -333,15 +320,19 @@ void oled_task_user(void) {
             case _SYM:
                 oled_write_P(PSTR("Sym\n"), false);
                 break;
+            case _MOD:
+                oled_write_P(PSTR("Mod\n"), false);
+                break;
             default:
                 oled_write_P(PSTR("Undefined\n"), false);
         }
 
         // Write host Keyboard LED Status to OLEDs
-        led_t led_usb_state = host_keyboard_led_state();
-        oled_write_P(led_usb_state.num_lock ? PSTR("NUMLCK ") : PSTR("       "), false);
-        oled_write_P(led_usb_state.caps_lock ? PSTR("CAPLCK ") : PSTR("       "), false);
-        oled_write_P(led_usb_state.scroll_lock ? PSTR("SCRLCK ") : PSTR("       "), false);
+        oled_write_P(os_ctrl_state != os_up_unqueued ? PSTR("CTRL ") : PSTR("     "), false);
+        oled_write_P(os_gui_state != os_up_unqueued ? PSTR("GUI  ") : PSTR("     "), false);
+        oled_write_P(os_alt_state != os_up_unqueued ? PSTR("ALT  ") : PSTR("     "), false);
+        oled_write_P(os_shft_state != os_up_unqueued ? PSTR("SHFT ") : PSTR("     "), false);
+
     } else {
         // clang-format off
         static const char PROGMEM logo[] = {
@@ -435,7 +426,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
             case _QWERTY:
                 // History scrubbing. For Adobe products, hold shift while moving
                 // backward to go forward instead.
-                if (clockwise) {
+                if (!clockwise) {
                     tap_code16(C(KC_Z));
                 } else {
                     tap_code16(C(KC_Y));

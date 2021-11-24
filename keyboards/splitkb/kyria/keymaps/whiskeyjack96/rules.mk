@@ -5,5 +5,6 @@ RGBLIGHT_ENABLE = no      # Enable keyboard RGB underglow
 # COMBO_ENABLE = yes
 KEY_OVERRIDE_ENABLE = yes
 LEADER_ENABLE = yes
-AUTO_SHIFT_ENABLE = yes
+# AUTO_SHIFT_ENABLE = yes
 EXTRAFLAGS += -flto
+SRC += oneshot.c
