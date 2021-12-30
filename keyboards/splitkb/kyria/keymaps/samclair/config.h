@@ -18,28 +18,15 @@
 
 #ifdef RGBLIGHT_ENABLE
 #    define RGBLIGHT_ANIMATIONS
-#    define RGBLIGHT_HUE_STEP 8
-#    define RGBLIGHT_SAT_STEP 8
-#    define RGBLIGHT_VAL_STEP 8
+#    define RGBLIGHT_HUE_STEP  8
+#    define RGBLIGHT_SAT_STEP  8
+#    define RGBLIGHT_VAL_STEP  8
 #    define RGBLIGHT_LIMIT_VAL 150
 #endif
-#define PERMISSIVE_HOLD
+
 // Lets you roll mod-tap keys
 #define IGNORE_MOD_TAP_INTERRUPT
-#define LEADER_TIMEOUT 300
 
-#define NO_ACTION_MACRO
-#define NO_ACTION_FUNCTION
 // If you are using an Elite C rev3 on the slave side, uncomment the lines below:
 // #define SPLIT_USB_DETECT
 // #define NO_USB_STARTUP_CHECK
-
-#define TAPPING_TOGGLE 2
-
-// Configure the global tapping term (default: 200ms)
-#define TAPPING_TERM 200
-
-// Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
-#define TAPPING_FORCE_HOLD
-#define ONESHOT_TAP_TOGGLE 3 /* Tapping this number of times holds the key until tapped once again. */
-#define ONESHOT_TIMEOUT 2000 /* Time (in ms) before the one shot key is released */
