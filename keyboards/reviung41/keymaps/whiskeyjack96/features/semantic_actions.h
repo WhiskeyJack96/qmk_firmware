@@ -9,6 +9,7 @@ int pasteKey(void) { return osKey(C(KC_V), G(KC_V)); }
 int copyKey(void) { return osKey(C(KC_C), G(KC_C)); }
 int cutKey(void) { return osKey(C(KC_X), G(KC_X)); }
 int undoKey(void) { return osKey(C(KC_Z), G(KC_Z)); }
+int redoKey(void) { return osKey(C(KC_Y), G(KC_Y)); }
 int refactorKey(void) { return osKey(C(KC_T), G(KC_T)); }
 int selectNextKey(void) { return osKey(C(KC_G), G(KC_G)); }
 int leftWorkspaceKey(void) { return osKey(G(C(KC_LEFT)), G(KC_LEFT)); }
@@ -18,47 +19,21 @@ int lastWindow(void) { return osKey(S(A(KC_TAB)), S(G(KC_TAB))); }
 
 bool process_semantic_actions(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case G(C(KC_LEFT)):
-            if (record->event.pressed) {
-                tap_code16(leftWorkspaceKey());
-                return false;
-            }
-            break;
-        case G(C(KC_RGHT)):
-            if (record->event.pressed) {
-                tap_code16(rightWorkspaceKey());
-                return false;
-            }
-            break;
-        case G(KC_RGHT):
-        case C(KC_RGHT):
-            if (record->event.pressed) {
-                tap_code16(nextWord());
-                return false;
-            }
-            break;
-        case G(KC_LEFT):
         case C(KC_LEFT):
             if (record->event.pressed) {
                 tap_code16(lastWord());
                 return false;
             }
             break;
-        case C(KC_Z):
+        case C(KC_RIGHT):
             if (record->event.pressed) {
-                tap_code16(undoKey());
+                tap_code16(nextWord());
                 return false;
             }
             break;
-        case C(KC_T):
+        case C(KC_V):
             if (record->event.pressed) {
-                tap_code16(refactorKey());
-                return false;
-            }
-            break;
-        case C(KC_G):
-            if (record->event.pressed) {
-                tap_code16(selectNextKey());
+                tap_code16(pasteKey());
                 return false;
             }
             break;
@@ -74,9 +49,27 @@ bool process_semantic_actions(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
-        case C(KC_V):
+        case C(KC_Z):
             if (record->event.pressed) {
-                tap_code16(pasteKey());
+                tap_code16(undoKey());
+                return false;
+            }
+            break;
+        case C(KC_Y):
+            if (record->event.pressed) {
+                tap_code16(redoKey());
+                return false;
+            }
+            break;
+        case G(C(KC_LEFT)):
+            if (record->event.pressed) {
+                tap_code16(leftWorkspaceKey());
+                return false;
+            }
+            break;
+        case G(C(KC_RGHT)):
+            if (record->event.pressed) {
+                tap_code16(rightWorkspaceKey());
                 return false;
             }
             break;

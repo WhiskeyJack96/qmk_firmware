@@ -25,9 +25,13 @@
 #define NO_ACTION_FUNCTION
 
 #define TAPPING_TOGGLE 2
-#define COMBO_COUNT 2
 // Configure the global tapping term (default: 200ms)
 #define TAPPING_TERM 200
-
+#define COMBO_COUNT 1
 // Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
 #define TAPPING_FORCE_HOLD
+#define ENCODERS_PAD_A \
+    { D5 }
+#define ENCODERS_PAD_B \
+    { B7 }
+#define ENCODER_DIRECTION_FLIP
