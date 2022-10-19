@@ -31,6 +31,8 @@ enum layer_names { _BASE, _LOWER, _RAISE, _ADJUST };
 #define BSPC_RAISE LT(_RAISE, KC_BSPC)
 #define SPC_SFT MT(MOD_LSFT, KC_SPC)
 #define ENT_SFT MT(MOD_LSFT, KC_ENT)
+#define PLAY_CTL MT(MOD_LCTL, KC_MPLY)
+#define GRV_GUI MT(MOD_LGUI, KC_GRV)
 
 #define ADJUST MO(_ADJUST)
 // clang-format off
@@ -68,33 +70,35 @@ void x_reset(qk_tap_dance_state_t *state, void *user_data);
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_BASE] = LAYOUT_reviung41(
-    KC_MPLY,  KC_Q,     KC_W,     KC_E,     KC_R,      KC_T,               KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LEAD,
-    KC_LGUI,  KC_A,     KC_S,     KC_D,     KC_F,      KC_G,               KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,
+    PLAY_CTL, KC_Q,     KC_W,     KC_E,     KC_R,      KC_T,               KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LEAD,
+    GRV_GUI,  KC_A,     KC_S,     KC_D,     KC_F,      KC_G,               KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,
     KC_LALT,  KC_Z,     KC_X,     KC_C,     KC_V,      KC_B,               KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,  KC_ESC,
                                 G(C(KC_LEFT)), TD(TAB_LOWER),  SPC_SFT,    BSPC_RAISE,  G(C(KC_RIGHT)) 
   ),
   [_LOWER] = LAYOUT_reviung41(
-    _______,  _______,  _______,  _______,  _______,  _______,           KC_HOME,  C(KC_LEFT), KC_UP,   C(KC_RGHT), KC_END,   KC_DEL,
-    _______,  _______,  _______,  _______,  _______,  _______,           KC_MPRV,  KC_LEFT,    KC_DOWN, KC_RGHT,    KC_MNXT,  _______,
-    _______,  C(KC_Z),  C(KC_X),  C(KC_C),  C(KC_V),  _______,           _______,  _______,    _______, _______,    _______,  KC_ENT,
+    _______,  _______,  _______,  _______,  _______,  C(KC_T),           KC_HOME,  C(KC_LEFT), KC_UP,   C(KC_RGHT), KC_END,   KC_DEL,
+    _______,  _______,  _______,  _______,  _______,  C(KC_G),           KC_MPRV,  KC_LEFT,    KC_DOWN, KC_RGHT,    KC_MNXT,  _______,
+    _______,  C(KC_Z),  C(KC_X),  C(KC_C),  C(KC_V),  _______,           _______,  KC_VOLD,    _______, KC_VOLU,    _______,  KC_ENT,
                                             _______,  _______,  ENT_SFT, _______,  _______
   ),
   [_RAISE] = LAYOUT_reviung41(
     _______,  KC_1,     KC_2,     KC_3,     KC_4,     KC_5,             KC_6,     KC_7,    KC_8,     KC_9,    KC_0,     KC_DEL,
-    KC_GRV,   KC_MINS,  KC_EQL,   KC_LBRC,  KC_RBRC,  KC_BSLS,          _______,  _______, _______,  _______, _______,  _______,
-    _______,  _______,  KC_RGUI,  KC_C,     _______,  _______,          _______,  _______, _______,  _______, _______,  KC_ENT,
+    _______,  KC_MINS,  KC_EQL,   KC_LBRC,  KC_RBRC,  KC_BSLS,          _______,  _______, _______,  _______, _______,  _______,
+    _______,  _______,  _______,  KC_MINS,  KC_EQL,   _______,          _______,  _______, _______,  _______, _______,  KC_ENT,
                                             _______,   LOWER,  ENT_SFT, _______,  _______
   ),
   [_ADJUST] = LAYOUT_reviung41(
-    XXXXXXX,   KC_FN1,  KC_FN2,   KC_FN3,   KC_FN4,    KC_FN5,             KC_FN6,   KC_FN7,   KC_FN8,   KC_FN9,   KC_FN10,  KC_FN11,
-    RGB_VAI,   RGB_SAI, RGB_HUI,  RGB_MOD,  XXXXXXX,   RGB_TOG,            KC_FN12,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,
-    RGB_VAD,   RGB_SAD, RGB_HUD,  RGB_RMOD, XXXXXXX,   XXXXXXX,            XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,
+    XXXXXXX,   KC_F1,   KC_F2,    KC_F3,    KC_F4,     KC_F5,              KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,
+    RGB_VAI,   RGB_SAI, RGB_HUI,  RGB_MOD,  XXXXXXX,   RGB_TOG,            KC_F12,   XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  KC_CAPS,
+    RGB_VAD,   RGB_SAD, RGB_HUD,  RGB_RMOD, XXXXXXX,   XXXXXXX,            XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  KC_NUM,
                                             _______,   _______,  XXXXXXX,  _______,  _______
   ),
 };
 // clang-format on
 
-layer_state_t layer_state_set_user(layer_state_t state) { return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST); }
+layer_state_t layer_state_set_user(layer_state_t state) {
+    return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
+}
 
 typedef union {
     uint32_t raw;
@@ -136,22 +140,22 @@ void matrix_scan_user(void) {
             user_config.osIsWindows = true;
             eeconfig_update_user(user_config.raw);
         }
-        SEQ_ONE_KEY(KC_E) {  // Email personal
+        SEQ_ONE_KEY(KC_E) { // Email personal
             SEND_STRING("jacob.mikesell96@gmail.com");
         }
-        SEQ_TWO_KEYS(KC_E, KC_E) {  // Email work
+        SEQ_TWO_KEYS(KC_E, KC_E) { // Email work
             SEND_STRING("jmikesell@apexclearing.com");
         }
-        SEQ_TWO_KEYS(KC_C, KC_C) {  // camelCase
+        SEQ_TWO_KEYS(KC_C, KC_C) { // camelCase
             enable_xcase_with(OSM(MOD_LSFT));
         }
-        SEQ_TWO_KEYS(KC_S, KC_C) {  // snake_case
+        SEQ_TWO_KEYS(KC_S, KC_C) { // snake_case
             enable_xcase_with(KC_UNDS);
         }
-        SEQ_TWO_KEYS(KC_K, KC_C) {  // kebab-case
+        SEQ_TWO_KEYS(KC_K, KC_C) { // kebab-case
             enable_xcase_with(KC_MINS);
         }
-        SEQ_TWO_KEYS(KC_C, KC_W) {  // CAPS word
+        SEQ_TWO_KEYS(KC_C, KC_W) { // CAPS word
             enable_caps_word();
         }
         // Screenshot
@@ -162,7 +166,16 @@ void matrix_scan_user(void) {
                 tap_code16(S(G(KC_4)));
             }
         }
-        // SEQ_ONE_KEY(KC_G) { layer_invert(_GAM); }
+        SEQ_ONE_KEY(KC_C) {
+            register_code(KC_LCTL);
+            tap_code16(KC_C);
+            unregister_code(KC_LCTL);
+        }
+        SEQ_ONE_KEY(KC_R) {
+            register_code(KC_LCTL);
+            tap_code16(KC_R);
+            unregister_code(KC_LCTL);
+        }
     }
 }
 int osKey(int win, int mac) {
@@ -244,7 +257,7 @@ void x_reset(qk_tap_dance_state_t *state, void *user_data) {
 }
 
 qk_tap_dance_action_t tap_dance_actions[] = {[TAB_LOWER] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, x_finished, x_reset)};
-
+#ifdef ENCODER_ENABLE
 bool encoder_update_user(uint8_t index, bool clockwise) {
     switch (biton32(layer_state)) {
         case _RAISE:
@@ -275,3 +288,4 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
     return false;
 }
+#endif

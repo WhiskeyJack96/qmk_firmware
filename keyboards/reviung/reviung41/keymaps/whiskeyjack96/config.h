@@ -30,8 +30,12 @@
 #define COMBO_COUNT 1
 // Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
 #define TAPPING_FORCE_HOLD
-#define ENCODERS_PAD_A \
-    { D5 }
-#define ENCODERS_PAD_B \
-    { B7 }
+
+#ifdef ENCODER_ENABLE
+#    define ENCODERS_PAD_A \
+        { D5 }
+#    define ENCODERS_PAD_B \
+        { B7 }
+#endif
+
 #define ENCODER_DIRECTION_FLIP
