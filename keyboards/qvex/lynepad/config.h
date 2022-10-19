@@ -19,13 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "config_common.h"
 
-/* USB Device descriptor parameter */
-#define VENDOR_ID 0x5156
-#define PRODUCT_ID 0x4C50
-#define DEVICE_VER 0x0001
-#define MANUFACTURER QVEX
-#define PRODUCT Lynepad
-
 /* key matrix size */
 #define MATRIX_ROWS 3
 #define MATRIX_COLS 4
@@ -35,7 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     { C7, F7, F6 }
 #define MATRIX_COL_PINS \
     { F0, F1, F4, F5 }
-#define UNUSED_PINS
 
 /* COL2ROW or ROW2COL */
 #define DIODE_DIRECTION COL2ROW
@@ -60,9 +52,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* Definitions for encoder tilt/press support */
 #define ENC_TILT_THRESHOLD 1
 #define ENCODER_RESOLUTION 4
-#define PIN_TW_SW D2     // Center
-#define PIN_RJ_SW C6     // Center
-#define PIN_RJ_DIR_A D4  // Up
-#define PIN_RJ_DIR_B D7  // Left
-#define PIN_RJ_DIR_C B6  // Down
-#define PIN_RJ_DIR_D B4  // Right
+#define PIN_TW_SW D2    // Center
+#define PIN_RJ_SW C6    // Center
+#define PIN_RJ_DIR_A D4 // Up
+#define PIN_RJ_DIR_B D7 // Left
+#define PIN_RJ_DIR_C B6 // Down
+#define PIN_RJ_DIR_D B4 // Right
