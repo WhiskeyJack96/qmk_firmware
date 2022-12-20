@@ -129,7 +129,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       _______,   _______,   _______,   KC_MINS,  KC_EQL,  _______,                                       _______, _______, _______,  _______, _______, KC_ENT,
   //|-------------------------------------------------------|                                   |-------------------------------------------------------|
                         _______,  _______,     TT(3), KC_LSFT,   KC_MS_BTN4,             KC_MS_BTN5,  _______, _______, _______,  _______,
-                                                                 KC_PGUP, KC_MS_BTN3,  KC_PGDOWN, XXXXXXX, XXXXXXX, XXXXXXX
+                                                                 KC_PGUP, KC_MS_BTN3,  KC_PGDN, XXXXXXX, XXXXXXX, XXXXXXX
                                                             //`--------------'  `--------------'
     ),
   [_TRACKBALL] = LAYOUT(
@@ -141,7 +141,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       XXXXXXX, XXXXXXX, RGB_VAD, RGB_SAD, RGB_HUD,RGB_RMOD,                                       SCRL_IN, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|-------------------------------------------------------|                                   |-------------------------------------------------------|
                         _______, _______, _______,  _______,   KC_MS_BTN1,             KC_MS_BTN2,  _______, _______, _______,  _______,
-                                                                 KC_PGUP, KC_MS_BTN3,  KC_PGDOWN, XXXXXXX, XXXXXXX, XXXXXXX
+                                                                 KC_PGUP, KC_MS_BTN3,  KC_PGDN, XXXXXXX, XXXXXXX, XXXXXXX
                                                             //`--------------'  `--------------'
     )
 };
@@ -236,30 +236,31 @@ void matrix_scan_user(void) {
     }
 }
 
-/*
+
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    int8_t degree = 45;
-    int8_t x_rev, y_rev;
-    x_rev =  + mouse_report.x * cos(degree) + mouse_report.y * sin(degree);
-    y_rev =  - mouse_report.x * sin(degree) + mouse_report.y * cos(degree);
-    if (isScrollMode) {
-        mouse_report.h = x_rev;
-        #ifdef COCOT_DRAGSCROLL_INVERT
-                // Invert vertical scroll direction
-                mouse_report.v = -y_rev;
-        #else
-                mouse_report.v = y_rev;
-        #endif
-        // mouse_report.v = y_rev;
-        mouse_report.x = 0;
-        mouse_report.y = 0;
-    } else {
-        mouse_report.x = x_rev;
-        mouse_report.y = y_rev;
-    }
+//set mouse mode true
+    // int8_t degree = 45;
+    // int8_t x_rev, y_rev;
+    // x_rev =  + mouse_report.x * cos(degree) + mouse_report.y * sin(degree);
+    // y_rev =  - mouse_report.x * sin(degree) + mouse_report.y * cos(degree);
+    // if (isScrollMode) {
+    //     mouse_report.h = x_rev;
+    //     #ifdef COCOT_DRAGSCROLL_INVERT
+    //             // Invert vertical scroll direction
+    //             mouse_report.v = -y_rev;
+    //     #else
+    //             mouse_report.v = y_rev;
+    //     #endif
+    //     // mouse_report.v = y_rev;
+    //     mouse_report.x = 0;
+    //     mouse_report.y = 0;
+    // } else {
+    //     mouse_report.x = x_rev;
+    //     mouse_report.y = y_rev;
+    // }
     return mouse_report;
 }
-*/
+
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Process case modes
