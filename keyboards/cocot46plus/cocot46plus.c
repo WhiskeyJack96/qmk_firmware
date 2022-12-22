@@ -184,6 +184,17 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
     return true;
 }
 
+
+// in <keyboard>.c:
+bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record) {
+    switch(keycode) {
+        case SCRL_MO:
+        case SCRL_TO:
+            return true;
+    }
+    return  is_mouse_record_user(keycode, record);
+}
+
 void eeconfig_init_kb(void) {
     cocot_config.cpi_idx        = COCOT_CPI_DEFAULT;
     cocot_config.scrl_div       = COCOT_SCROLL_DIV_DEFAULT;
@@ -233,13 +244,6 @@ void oled_write_layer_state(void) {
     int scroll_div = scrl_div_array[cocot_config.scrl_div];
     int angle      = angle_array[cocot_config.rotation_angle];
 
-    char buf1[5];
-    char buf2[3];
-    char buf3[4];
-    snprintf(buf1, 5, "%4d", cpi);
-    snprintf(buf2, 3, "%2d", scroll_div);
-    snprintf(buf3, 4, "%3d", angle);
-
     switch (get_highest_layer(layer_state | default_layer_state)) {
         case 0:
             oled_write_P(PSTR("Base "), false);
@@ -251,7 +255,13 @@ void oled_write_layer_state(void) {
             oled_write_P(PSTR("Raise"), false);
             break;
         case 3:
+            oled_write_P(PSTR("Game "), false);
+            break;
+        case 4:
             oled_write_P(PSTR("Mouse"), false);
+            break;
+        case 5:
+            oled_write_P(PSTR("Cntl "), false);
             break;
         default:
             oled_write_P(PSTR("Undef"), false);
@@ -264,11 +274,11 @@ void oled_write_layer_state(void) {
         oled_write_P(PSTR("C"), false);
     }
     oled_write_P(PSTR("/"), false);
-    oled_write(buf1, false);
+    oled_write(get_u8_str(cpi, ' '), false);
     oled_write_P(PSTR("/"), false);
-    oled_write(buf2, false);
+    oled_write(get_u8_str(scroll_div, ' '), false);
     oled_write_P(PSTR("/"), false);
-    oled_write(buf3, false);
+    oled_write(get_u8_str(angle, ' '), false);
 }
 
 #endif

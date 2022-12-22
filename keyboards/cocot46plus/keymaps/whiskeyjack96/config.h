@@ -12,3 +12,8 @@
 #define COMBO_COUNT 1
 // Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
 #define TAPPING_FORCE_HOLD
+#define POINTING_DEVICE_AUTO_MOUSE_ENABLE
+#undef LOCKING_SUPPORT_ENABLE
+#undef LOCKING_RESYNC_ENABLE
+
+#define AUTO_MOUSE_TIME 1000

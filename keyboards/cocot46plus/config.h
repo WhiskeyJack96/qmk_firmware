@@ -57,10 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef RGBLIGHT_ENABLE
 #    undef RGBLED_NUM
 #    undef RGBLIGHT_ANIMATIONS
-#    define RGBLIGHT_EFFECT_RAINBOW_MOOD
-// #    undef RGBLIGHT_ANIMATIONS
 #    undef RGBLIGHT_EFFECT_BREATHING
-// #    undef RGBLIGHT_EFFECT_RAINBOW_MOOD
 #    undef RGBLIGHT_EFFECT_RAINBOW_SWIRL
 #    undef RGBLIGHT_EFFECT_SNAKE
 #    undef RGBLIGHT_EFFECT_KNIGHT
@@ -69,6 +66,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    undef RGBLIGHT_EFFECT_RGB_TEST
 #    undef RGBLIGHT_EFFECT_ALTERNATING
 #    undef RGBLIGHT_EFFECT_TWINKLE
+
+#    define RGBLIGHT_EFFECT_RAINBOW_MOOD
 /* select individual effect
 #define RGBLIGHT_EFFECT_BREATHING
 #define RGBLIGHT_EFFECT_RAINBOW_MOOD

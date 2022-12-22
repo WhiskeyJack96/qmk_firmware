@@ -1,7 +1,7 @@
 VIA_ENABLE = no
 
 COMBO_ENABLE = no
-KEY_OVERRIDE_ENABLE = yes
+KEY_OVERRIDE_ENABLE = no
 TAP_DANCE_ENABLE = yes
 ENCODER_ENABLE = yes       # ENables the use of one or more encoders
 LEADER_ENABLE = yes	
